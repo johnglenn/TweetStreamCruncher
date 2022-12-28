@@ -25,7 +25,7 @@ namespace GlennDemo.Twitter
             _errorHandler = errorHandler;
         }
 
-        public delegate Task StreamHandler(string? contents);
+        public delegate IEnumerable<Task> StreamHandler(string? contents);
 
         public async Task StartStreaming(CancellationToken cancellationToken)
         {
@@ -37,9 +37,12 @@ namespace GlennDemo.Twitter
 
             var reader = new StreamReader(stream);
 
+            // iterate over each tweet
             while (reader.EndOfStream == false && cancellationToken.IsCancellationRequested == false)
             {
-                _tasks.Enqueue(_handler(await reader.ReadLineAsync()));
+                var tasksSpawnedForThisTweet = _handler(await reader.ReadLineAsync());
+                foreach (var task in tasksSpawnedForThisTweet)
+                    _tasks.Enqueue(task);
             }
         }
 
