@@ -61,6 +61,7 @@ namespace GlennDemo.Twitter
                         break;
                     case TaskStatus.RanToCompletion:
                         break;
+                    case TaskStatus.Created:
                     case TaskStatus.WaitingToRun:
                     case TaskStatus.WaitingForActivation:
                     case TaskStatus.WaitingForChildrenToComplete:
