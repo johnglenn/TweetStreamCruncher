@@ -75,6 +75,8 @@ namespace GlennDemo.TweetSampler
         }
         public ushort TopHashtagsToReport { get; set; } = 10;
 
+        public ushort TweetStreamLoadMultiplier { get; set; } = 1;
+
         public bool IsStreamTaskRunning()
         {
             return _streamingTask?.Status == TaskStatus.Running;
@@ -102,28 +104,34 @@ namespace GlennDemo.TweetSampler
             _cancellationTokenSource.Cancel();
         }
 
-        private Task ExtractAndStoreHashtagsFromStreamedTweetJson(string? json)
+        private IEnumerable<Task> ExtractAndStoreHashtagsFromStreamedTweetJson(string? json)
         {
             var parser = GetJsonParser();
 
-            return Task.Run(() =>
+            List<Task> tasksSpawned = new List<Task>();
+            for (int i = 0; i < TweetStreamLoadMultiplier; i++)
             {
-                try
+                tasksSpawned.Add(Task.Run(() =>
                 {
-                    if (string.IsNullOrWhiteSpace(json))
-                        return;
+                    try
+                    {
+                        if (string.IsNullOrWhiteSpace(json))
+                            return;
 
-                    var tweet = parser.DeserializeJsonStringToModel(json);
+                        var tweet = parser.DeserializeJsonStringToModel(json);
 
-                    var hashtags = _hashtagExtractor.ExtractHashtags(tweet.Data.Text);
+                        var hashtags = _hashtagExtractor.ExtractHashtags(tweet.Data.Text);
 
-                    _statisticsService.RecordTweetThreadSafe(hashtags);
-                }
+                        _statisticsService.RecordTweetThreadSafe(hashtags);
+                    }
 
-                // rather than degrading performane with null checks, we'll just catch the exception
-                catch (NullReferenceException) { }
-                catch (JsonParserException) { }
-            });
+                    // rather than degrading performane with null checks, we'll just catch the exception
+                    catch (NullReferenceException) { }
+                    catch (JsonParserException) { }
+                }));
+            }
+
+            return tasksSpawned;
         }
 
         private IJsonParser<TweetStreamDataWrapper> GetJsonParser()

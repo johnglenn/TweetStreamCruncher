@@ -9,9 +9,6 @@ dotnet user-secrets set "Twitter:BearerToken" "your_secret_goes_here"
 ```
 2. Run the app!
 
-# Customization
-The ITweetSamplerService allows a custom StatisticsReportingIntervalInSeconds and ErrorHandler to be configured on the service.  Most of the dependencies can be extended and the replacement dependency used.
-
 # Performance
 This system delivers consistent memory utilization (expected between 20 - 30 MB).  Garbage collection is expected a few times per minute; if it occurs every second or two consistently, please raise an issue.  On my laptop (Intel i7 8th Gen, 16 GB RAM), CPU utilization was consistently less than 1%.
 
@@ -19,6 +16,16 @@ Memory utilization grows roughly 1 MB per 10 minutes based on my testing.
 
 ## JSON Serialization
 With every statistics report, the system also outputs performance metrics for the two competing JSON parsers - one using native .NET JSON deserialization and one using Newtonsoft's library.  Are these components truly parsers?  Meh... it felt more succinct than calling them Deserializers.  Feel free to fork and rename if it will make your coffee stronger.
+
+# Generate Load
+To generate artificial load on the system, set the TweetStreamLoadMultiplier of the TweetSamplerService to cause each line of JSON from the sampled stream to be processed multiple times.
+
+In my testing on my laptop with a 1000x load multiple, the system was able to process 2.5 million tweets in 90 seconds while consuming a relatively stable 120 MB of memory and trending around 30% CPU utilization.  An initial backlog of over 1,500 parsing tasks built up while the runtime was optimizing the execution of the JSON parser.  However, the bottleneck was eliminated after 15 - 20 seconds and did not reappear.
+
+Running under 2000x load, memory utilization was between 180 - 220 MB with very frequent garbage collection.  After processing 5 million tweets in 90 seconds, the non-blocking statistics building had a noticeable delay of at least 1 second.  I am satisfied with the performance and stability of the system.  Many of the enhancements required to operate at the 1000x to 2000x load level are detailed in the future work section of this readme.
+
+# Customization
+The ITweetSamplerService allows a custom StatisticsReportingIntervalInSeconds and ErrorHandler to be configured on the service.  Most of the dependencies can be extended and the replacement dependency used.
 
 # Known Bugs
 1. Hashtags displayed to the console are limited to ASCII characters, so some hashtags appear as question marks in the console.  A custom ITweetStatisticsLogger could output this data to file to display the actual values; a custom logger could just as easily store the data in an in-memory EF context or server-side cache to build a quick API for accessing the data.
