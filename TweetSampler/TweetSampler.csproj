@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>GlennDemo.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hashtag\Hashtag.csproj" />
+    <ProjectReference Include="..\JsonParser\JsonParser.csproj" />
+    <ProjectReference Include="..\Statistics\Statistics.csproj" />
+    <ProjectReference Include="..\Twitter\Twitter.csproj" />
+  </ItemGroup>
+
+</Project>
