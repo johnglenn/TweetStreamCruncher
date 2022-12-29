@@ -12,6 +12,7 @@
     <ProjectReference Include="..\JsonParser\JsonParser.csproj" />
     <ProjectReference Include="..\Statistics\Statistics.csproj" />
     <ProjectReference Include="..\Twitter\Twitter.csproj" />
+    <ProjectReference Include="..\Utilities\Utilities.csproj" />
   </ItemGroup>
 
 </Project>

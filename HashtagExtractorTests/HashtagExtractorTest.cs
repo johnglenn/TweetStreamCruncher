@@ -1,6 +1,5 @@
 using GlennDemo.Hashtag;
 using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 
 namespace HashtagExtractorTests

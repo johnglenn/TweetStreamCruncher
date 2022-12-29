@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HashtagExtractor\Hashtag.csproj" />
+    <ProjectReference Include="..\Hashtag\Hashtag.csproj" />
   </ItemGroup>
 
 </Project>

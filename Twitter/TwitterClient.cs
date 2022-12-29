@@ -1,13 +1,8 @@
 ﻿using GlennDemo.Twitter.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GlennDemo.Twitter
 {
-    public class TwitterClient : HttpClient
+    public class TwitterClient : HttpClient, ITwitterClient
     {
         public TwitterClient(TwitterClientConfig config) 
         {

@@ -17,7 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HashtagExtractorTests", "Ha
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Statistics", "Statistics\Statistics.csproj", "{0546290A-945E-4F7A-80B9-FF3AF393FDCF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TweetSampler", "TweetSampler\TweetSampler.csproj", "{14944784-5F3B-4D52-BAA0-9ADDE2020E8B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TweetSampler", "TweetSampler\TweetSampler.csproj", "{14944784-5F3B-4D52-BAA0-9ADDE2020E8B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "Utilities\Utilities.csproj", "{3E0F0322-1D17-45B5-9762-B94A7711C032}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +55,10 @@ Global
 		{14944784-5F3B-4D52-BAA0-9ADDE2020E8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14944784-5F3B-4D52-BAA0-9ADDE2020E8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14944784-5F3B-4D52-BAA0-9ADDE2020E8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E0F0322-1D17-45B5-9762-B94A7711C032}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E0F0322-1D17-45B5-9762-B94A7711C032}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E0F0322-1D17-45B5-9762-B94A7711C032}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E0F0322-1D17-45B5-9762-B94A7711C032}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
