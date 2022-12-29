@@ -3,19 +3,14 @@ using GlennDemo.JsonParser;
 using GlennDemo.Statistics;
 using GlennDemo.Twitter;
 using GlennDemo.Twitter.Models;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using GlennDemo.Utilities;
 
 namespace GlennDemo.TweetSampler
 {
     public class TweetSamplerService : ITweetSamplerService
     {
-        private TwitterClient _client;
-        private StreamingService _streamingService;
+        private ITwitterClient _client;
+        private IStreamTaskMachine _streamingService;
         private IStatisticsService _statisticsService;
         private IHashtagExtractor _hashtagExtractor;
         private ITweetStatisticsLogger _statisticsLogger;
@@ -27,10 +22,12 @@ namespace GlennDemo.TweetSampler
         private Task? _streamingTask;
 
         // TODO: downselect to a single parser once performance has been evaluated
+
+        // constructor for running without a DI container
         public TweetSamplerService(TwitterClientConfig config)
         {
             _client = new TwitterClient(config);
-            _streamingService = new StreamingService(_client, ExtractAndStoreHashtagsFromStreamedTweetJson, _errorHandler);
+            _streamingService = new StreamingService(new RuntimeTaskTracker());
             _hashtagExtractor = new HashtagExtractor();
             _statisticsService = new StatisticsService();
             _statisticsLogger = new ConsoleStatisticsLogger();
@@ -38,7 +35,7 @@ namespace GlennDemo.TweetSampler
             _statisticsTimer = BuildStatisticsTimer();
         }
 
-        public TweetSamplerService(TwitterClient client, StreamingService streamingService,
+        public TweetSamplerService(ITwitterClient client, IStreamTaskMachine streamingService,
             IStatisticsService statisticsService, IHashtagExtractor hashtagExtractor,
             ITweetStatisticsLogger statisticsLogger)
         {
@@ -82,21 +79,38 @@ namespace GlennDemo.TweetSampler
             return _streamingTask?.Status == TaskStatus.Running;
         }
 
-        public void StartSampling()
+        public async Task StartSampling()
         {
             _statisticsTimer.Start();
 
-            StartStreamingTask();
+            await StartStreamingTask();
         }
 
         // TODO: this is incredibly rudimentary connection repair; refactor
-        private void StartStreamingTask()
+        private async Task StartStreamingTask()
         {
+            // TODO: handle error conditions in the API connection
+            // TODO: handle disconnects and reconnect automatically
+            // NOTE regarding error handling: uncaught API exceptions currently cause the task
+            // .. to fault which triggers a restart of the stream; don't add error handling
+            // .. without also implementing disconnect handling
+            var stream = await _client.GetStreamAsync("/2/tweets/sample/stream", _cancellationTokenSource.Token);
+
+
             bool streamEndedUnexpectedly = _streamingTask?.Status == TaskStatus.RanToCompletion;
-            if (_streamingTask == null || streamEndedUnexpectedly)
-                _streamingTask = _streamingService.StartStreaming(_cancellationTokenSource.Token)
-                    // rerun this function if the streaming task ends
-                    .ContinueWith((_, _) => StartStreamingTask(), _cancellationTokenSource.Token);
+            bool streamShouldStart = _streamingTask == null || streamEndedUnexpectedly;
+
+            if (streamShouldStart == false)
+                return;
+
+            _streamingTask = _streamingService.MakeTasksFromLinesInStream(
+                stream,
+                ExtractAndStoreHashtagsFromStreamedTweetJson,
+                _errorHandler,
+                _cancellationTokenSource.Token
+                )
+                // rerun this function if the streaming task ends
+                .ContinueWith((_, _) => StartStreamingTask(), _cancellationTokenSource.Token, TaskContinuationOptions.OnlyOnFaulted);
         }
 
         public void StopSampling()
@@ -146,7 +160,8 @@ namespace GlennDemo.TweetSampler
         private void ReportStatisticsTimerEventHandler(object? sender, System.Timers.ElapsedEventArgs e)
         {
             // TODO: strip out debug logging before production
-            _streamingService.DEBUG_CountAndLogTaskMetricsToConsole();
+            _streamingService.LogTaskStatisticsToConsole();
+
             Parsers.LogTimesAndResetTimeCollections();
 
             Task statsBuilder = _statisticsService.BuildStatistics(_cancellationTokenSource.Token);

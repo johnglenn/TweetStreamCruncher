@@ -14,6 +14,8 @@ This system delivers consistent memory utilization (expected between 20 - 30 MB 
 
 Memory utilization grows roughly 1 MB per 10 minutes due to the use of in-memory data persistence.  As 1000x and 2000x testing below will show, the system exhibits memory stability at scale.
 
+NOTE: The RuntimeTaskTracker is the debugging harness for keeping track of the pending JSON parsing tasks.  This tracker represents the largest memory leak vulnerability as the tracker only clears the task queue when task statistics are built.  Task continuation could be use to build these statistics on task completion without maintaining a collection of spawned tasks.  This is future work.
+
 ## JSON Serialization
 With every statistics report, the system also outputs performance metrics for the two competing JSON parsers - one using native .NET JSON deserialization and one using Newtonsoft's library.  Are these components truly parsers?  Meh... it felt more succinct than calling them Deserializers.  Feel free to fork and rename if it will make your coffee stronger.
 
@@ -22,7 +24,7 @@ To generate artificial load on the system, set the TweetStreamLoadMultiplier of 
 
 In my testing on my laptop with a 1000x load multiple (aka: 10x the real-time tweet volume on Twitter), the system was able to process 2.5 million tweets in 90 seconds while consuming a relatively stable 120 MB of memory and trending around 30% CPU utilization.  An initial backlog of over 1,500 parsing tasks built up while the runtime was optimizing the execution of the JSON parser.  However, the bottleneck was eliminated after 15 - 20 seconds and did not reappear.
 
-Running under 2000x load, memory utilization was between 180 - 220 MB with very frequent garbage collection.  After processing 5 million tweets in 90 seconds, the non-blocking statistics building had a noticeable delay of at least 1 second.  I am satisfied with the performance and stability of the system.  Many of the enhancements required to operate at the 1000x to 2000x load level are detailed in the future work section of this readme.
+Running under 2000x load, memory utilization was between 180 - 220 MB with very frequent garbage collection.  After processing 5 million tweets in 90 seconds, the non-blocking statistics building had a noticeable delay of at least 1 second.  I am satisfied with the performance and stability of the system.
 
 # Customization
 The ITweetSamplerService allows a custom StatisticsReportingIntervalInSeconds and ErrorHandler to be configured on the service.  The structure is in place to inject dependencies from a DI container.

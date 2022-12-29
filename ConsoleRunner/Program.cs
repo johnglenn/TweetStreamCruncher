@@ -10,7 +10,7 @@ TweetSamplerService samplerService = new TweetSamplerService(config);
 samplerService.TweetStreamLoadMultiplier = 1;
 
 Console.WriteLine("Beginning to sample the tweet feed");
-samplerService.StartSampling();
+await samplerService.StartSampling();
 Console.WriteLine("- Done.");
 Console.WriteLine("Expect your first statistics report in {0} seconds", samplerService.StatisticsReportingIntervalInSeconds);
 Console.WriteLine("\r\nPress any key to end sampling.\r\n\r\n");

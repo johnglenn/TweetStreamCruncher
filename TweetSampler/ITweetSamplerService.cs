@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GlennDemo.TweetSampler
+﻿namespace GlennDemo.TweetSampler
 {
     public interface ITweetSamplerService
     {
@@ -12,7 +6,7 @@ namespace GlennDemo.TweetSampler
 
         int StatisticsReportingIntervalInSeconds { get; set; }
 
-        void StartSampling();
+        Task StartSampling();
 
         void StopSampling();
 
