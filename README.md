@@ -14,7 +14,7 @@ This system delivers consistent memory utilization (expected between 20 - 30 MB 
 
 Memory utilization grows roughly 1 MB per 10 minutes due to the use of in-memory data persistence.  As 1000x and 2000x testing below will show, the system exhibits memory stability at scale.
 
-NOTE: The RuntimeTaskTracker is the debugging harness for keeping track of the pending JSON parsing tasks.  This tracker represents the largest memory leak vulnerability as the tracker only clears the task queue when task statistics are built.  Task continuation could be use to build these statistics on task completion without maintaining a collection of spawned tasks.  This is future work.
+NOTE: The RuntimeTaskTracker is the debugging harness for keeping track of the pending JSON parsing tasks.  This tracker represents the largest memory leak vulnerability as the tracker only clears the task queue when task statistics are built.  Task continuation could be used to build these statistics on task completion without maintaining a collection of spawned tasks.  This is future work.
 
 ## JSON Serialization
 With every statistics report, the system also outputs performance metrics for the two competing JSON parsers - one using native .NET JSON deserialization and one using Newtonsoft's library.  Are these components truly parsers?  Meh... it felt more succinct than calling them Deserializers.  Feel free to fork and rename if it will make your coffee stronger.
